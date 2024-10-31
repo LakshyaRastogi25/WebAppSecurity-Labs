@@ -9,7 +9,11 @@ User-Focused Attacks: Attackers can manipulate what the user sees or the actions
 Examples:
 
 Cross-Site Scripting (XSS): Injecting malicious scripts into webpages, which then run in other users’ browsers.
+
 Cross-Site Request Forgery (CSRF): Forcing a user to perform actions on a web app without their consent.
+
 CORS (Cross-Origin Resource Sharing) Vulnerabilities: Exploiting browser policies that control requests between different sites.
+
 DOM-Based Vulnerabilities: Manipulating the Document Object Model (DOM) in a way that leads to security issues.
+
 Web Socket Vulnerabilities: Intercepting or manipulating real-time communications in the browser.
