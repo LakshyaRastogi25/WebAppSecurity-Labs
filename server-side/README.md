@@ -1,4 +1,5 @@
 **Server-Side Vulnerabilities**
+
 Server-side vulnerabilities exist in the back-end of a web application—the part that runs on the server and handles requests, databases, file storage, and processing. When a vulnerability exists on the server side, it can often impact the entire system or compromise sensitive data.
 
 Characteristics of Server-Side Vulnerabilities:
