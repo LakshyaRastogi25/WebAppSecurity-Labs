@@ -25,3 +25,11 @@ deserialized_data = pickle.loads(serialized_data)
 print(deserialized_data)  # Output: {'username': 'Lakshya', 'role': 'admin'}
 
 ```
+
+**What is insecure deserialization?**
+
+Insecure deserialization occurs when an application **blindly accepts** and **deserializes** untrusted data without **validation or sanitization**. If an attacker sends a malicious serialized object, they can execute arbitrary code, modify application logic, or escalate privileges.
+
+It is even possible to replace a serialized object with an object of an entirely different class. Alarmingly, objects of any class that is available to the website will be deserialized and instantiated, regardless of which class was expected. For this reason, insecure deserialization is sometimes known as an **"object injection" vulnerability**.
+
+An object of an unexpected class might cause an exception. By this time, however, the damage may already be done. Many deserialization-based attacks are completed before deserialization is finished. This means that the deserialization process itself can initiate an attack, even if the website's own functionality does not directly interact with the malicious object. For this reason, websites whose logic is based on strongly typed languages can also be vulnerable to these techniques.
