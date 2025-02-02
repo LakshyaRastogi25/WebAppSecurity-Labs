@@ -9,4 +9,16 @@ In other words "Serialization is the process of converting an object (like a Pyt
  - Send complex data, for example, over a network, between different components of an application, or in an API call
  - Crucially, when serializing an object, its state is also persisted. In other words, the object's attributes are preserved, along with their assigned values.
 
+**EXAMPLE :**
+```
+import pickle  
 
+# Serialization: Convert a Python object into bytes
+data = {"username": "Lakshya", "role": "admin"}
+serialized_data = pickle.dumps(data)  
+
+# Deserialization: Convert bytes back into a Python object
+deserialized_data = pickle.loads(serialized_data)  
+print(deserialized_data)  # Output: {'username': 'Lakshya', 'role': 'admin'}
+
+```
