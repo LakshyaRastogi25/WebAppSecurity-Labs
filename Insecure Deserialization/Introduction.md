@@ -37,6 +37,7 @@ An object of an unexpected class might cause an exception. By this time, however
 ----
 ----
 **How do insecure deserialization vulnerabilities arise?**
+
 Insecure deserialization typically arises because there is a general lack of understanding of how dangerous deserializing user-controllable data can be. Ideally, user input should never be deserialized at all.
 
 Insecure deserialization vulnerabilities arise because it is virtually impossible to implement validation or sanitization to account for every eventuality. These checks are also fundamentally flawed as they rely on checking the data after it has been deserialized, which in many cases will be too late to prevent the attack.
@@ -50,6 +51,7 @@ In short, it can be argued that it is not possible to securely deserialize untru
 ----
 ----
 **What is the impact of insecure deserialization?**
+
 The impact of insecure deserialization can be very severe because it provides an entry point to a massively increased attack surface. It allows an attacker to reuse existing application code in harmful ways, resulting in numerous other vulnerabilities, often remote code execution.
 
 Even in cases where remote code execution is not possible, insecure deserialization can lead to :
