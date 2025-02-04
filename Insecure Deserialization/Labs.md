@@ -63,7 +63,7 @@ In this lab, we exploit **insecure deserialization** in PHP to escalate privileg
    ```
 2. Send the request.  
 3. If successful, **Carlos' account is deleted**, and you have solved the lab!  
-
+----
 # **Lab2: Modifying serialized data types**  
 
 ## **Lab Summary**  
