@@ -64,3 +64,73 @@ In this lab, we exploit **insecure deserialization** in PHP to escalate privileg
 2. Send the request.  
 3. If successful, **Carlos' account is deleted**, and you have solved the lab!  
 
+# **Lab2: Modifying serialized data types**  
+
+## **Lab Summary**  
+This lab demonstrates how **insecure deserialization** in PHP can be exploited to gain **admin privileges** by modifying serialized session data. By changing a username field and altering the data type of an access token, we escalate our privileges and gain access to the admin panel.  
+
+---
+
+## **Steps to Exploit the Vulnerability**  
+
+### **Step 1: Log in and Identify the Session Cookie**  
+1. Log in using your own credentials.  
+2. In **Burp Suite**, open the **GET /my-account** request after logging in.  
+3. Locate the **session cookie** in the request headers.  
+4. Use **Burp Inspector** to **decode** the session cookie.  
+
+#### **Decoded PHP Serialized Object (Example Before Modification)**  
+```
+O:4:"User":2:{s:8:"username";s:4:"user";s:12:"access_token";s:10:"random1234";}
+```
+- `O:4:"User"` → Object of class `User`.  
+- `s:8:"username";s:4:"user";` → Username field (4-character string "user").  
+- `s:12:"access_token";s:10:"random1234";` → Access token (10-character string "random1234").  
+
+---
+
+### **Step 2: Modify the Session Cookie to Escalate Privileges**  
+1. **Send the request to Burp Repeater.**  
+2. **Modify the session cookie using Burp's Inspector panel:**  
+   - **Change the username to `"administrator"`** and update its length to **13** characters.  
+   - **Change the access token to an integer (`0`)** instead of a string:  
+     - **Remove the double quotes** around the value.  
+     - **Update the type label from `s` (string) to `i` (integer).**  
+
+#### **Modified Serialized Object**  
+```
+O:4:"User":2:{s:8:"username";s:13:"administrator";s:12:"access_token";i:0;}
+```
+- `s:13:"administrator";` → Username is now **"administrator"** (13-character string).  
+- `s:12:"access_token";i:0;` → Access token is now **integer 0** (not a string).  
+
+---
+
+### **Step 3: Apply Changes and Send the Request**  
+1. Click **"Apply changes"** in Burp.  
+   - Burp will **re-encode** the object automatically.  
+2. **Send the modified request.**  
+3. Check the response.  
+   - If successful, the response should now include a **link to the admin panel (`/admin`)**, confirming that you have **admin access**.  
+
+---
+
+### **Step 4: Access the Admin Panel**  
+1. Change the **request path** to:  
+   ```
+   GET /admin HTTP/1.1
+   ```
+2. Send the request.  
+3. The **admin panel** should now be accessible.  
+4. The page contains **links to delete specific user accounts**.  
+
+---
+
+### **Step 5: Delete the User "Carlos"**  
+1. Change the request path to:  
+   ```
+   GET /admin/delete?username=carlos HTTP/1.1
+   ```
+2. Send the request.  
+3. If successful, **Carlos' account is deleted**, and the lab is solved!  
+----
