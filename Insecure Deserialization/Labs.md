@@ -134,3 +134,66 @@ O:4:"User":2:{s:8:"username";s:13:"administrator";s:12:"access_token";i:0;}
 2. Send the request.  
 3. If successful, **Carlos' account is deleted**, and the lab is solved!  
 ----
+
+# **Lab Write-Up: Using application functionality to exploit insecure deserialization**  
+
+## **Lab Summary**  
+This lab demonstrates how **insecure deserialization** can be exploited to delete **arbitrary files** on the server. The web application stores user session data as a **serialized PHP object**, which includes an **avatar_link** attribute. By modifying this attribute to point to a sensitive file (`/home/carlos/morale.txt`), we can **leverage the account deletion functionality** to delete the targeted file.  
+
+---
+
+## **Steps to Exploit the Vulnerability**  
+
+### **Step 1: Log in and Identify the Session Cookie**  
+1. **Log in** to your account.  
+2. Navigate to the **"My Account"** page.  
+3. Notice the option to **delete your account** by sending a `POST` request to:  
+   ```
+   POST /my-account/delete HTTP/1.1
+   ```
+4. **Send the request to Burp Repeater** for further analysis.  
+
+---
+
+### **Step 2: Identify and Modify the Serialized Object**  
+1. In **Burp Suite**, examine the **session cookie** in the request headers.  
+2. Use **Burp Inspector** to **decode the session cookie** and reveal a **PHP serialized object**.  
+3. Locate the **`avatar_link` attribute**, which stores the **file path to your avatar**.  
+
+#### **Example of Decoded Serialized Object Before Modification:**  
+```
+O:4:"User":2:{s:8:"username";s:4:"user";s:11:"avatar_link";s:20:"/avatars/user123.jpg";}
+```
+- `s:8:"username";s:4:"user";` → Username is `"user"`.  
+- `s:11:"avatar_link";s:20:"/avatars/user123.jpg";` → Avatar stored at `/avatars/user123.jpg`.  
+
+---
+
+### **Step 3: Modify the Serialized Data to Target Carlos’s File**  
+1. **Change the `avatar_link` attribute** to point to **Carlos’s morale.txt file**:  
+   ```
+   s:11:"avatar_link";s:23:"/home/carlos/morale.txt";
+   ```
+   - `s:23` → Indicates the new file path is **23 characters long**.  
+2. **Update the serialized object accordingly**.  
+
+#### **Modified Serialized Object:**  
+```
+O:4:"User":2:{s:8:"username";s:4:"user";s:11:"avatar_link";s:23:"/home/carlos/morale.txt";}
+```
+3. Click **"Apply changes"** in Burp.  
+   - Burp will **re-encode** the object automatically.  
+
+---
+
+### **Step 4: Send the Modified Request to Delete the File**  
+1. Change the **request method** to:  
+   ```
+   POST /my-account/delete HTTP/1.1
+   ```
+2. **Send the request** with the modified session cookie.  
+3. Since the web application **automatically deletes the file stored in `avatar_link`** when deleting a user, it will delete **Carlos's morale.txt file** instead of the avatar.  
+4. The **lab is solved!**  
+
+---
+
