@@ -140,3 +140,94 @@ ydYS2hO3IhusK9NEChqkMbqPlBUQSH
 ```
 CKA6jfg6ybxTwPDnUJCpqGId5Ql7XB2f
 ```
+
+# Lab: Exploiting origin server normalization for web cache deception
+
+## 1. Identifying a Target Endpoint
+
+1. Log in to the application using the provided credentials:
+   - Username: wiener
+   - Password: peter
+
+2. Observe that the response contains your API key, confirming that `/my-account` serves user-specific data.
+
+## 2. Investigating Path Delimiter Discrepancies
+
+1. In **Burp Suite**, navigate to **Proxy > HTTP history**.
+2. Locate the `GET /my-account` request, right-click, and select **Send to Repeater**.
+3. Modify the request path to `/my-account/abc`, then send the request.
+   - Observe the **404 Not Found** response, indicating that the origin server does not abstract the path.
+4. Modify the request path to `/my-accountabc`, then send the request.
+   - Observe the **404 Not Found** response with no caching evidence.
+5. Right-click the request and select **Send to Intruder**.
+6. In **Intruder**, ensure **Sniper attack mode** is selected.
+7. Add a **payload position** after `/my-account`:
+   ```
+   /my-account§§abc
+   ```
+8. Under **Payloads**, add a list of potential delimiter characters.
+9. Under **Payload encoding**, **deselect URL encoding** for these characters.
+10. Click **Start attack**.
+11. Once the attack completes, sort the results by **Status code**.
+12. Observe that **only the `?` character returns a 200 OK response with the API key**.
+13. Since `?` is a universal delimiter, move on to investigate **normalization discrepancies**.
+
+## 3. Investigating Normalization Discrepancies
+
+1. In **Repeater**, remove the arbitrary `abc` string and add an **encoded dot-segment**:
+   ```
+   /aaa/..%2fmy-account
+   ```
+2. Send the request.
+   - Observe that it receives a **200 response with your API key**, indicating that the origin server decodes and resolves dot-segments.
+3. In **Proxy > HTTP history**, notice that static resources use the `/resources` prefix.
+4. Responses with the `/resources` prefix **show caching evidence**.
+5. Right-click a request with the `/resources` prefix and select **Send to Repeater**.
+6. In **Repeater**, add an **encoded dot-segment**:
+   ```
+   /resources/..%2fYOUR-RESOURCE
+   ```
+7. Send the request.
+   - Observe the **404 response with X-Cache: miss**.
+8. Resend the request.
+   - Observe that **X-Cache changes to hit**, suggesting that the cache does not resolve dot-segments and has a cache rule based on `/resources`.
+9. Modify the URL path after `/resources`:
+   ```
+   /resources/aaa
+   ```
+10. Send the request.
+    - Observe the **404 response with X-Cache: miss**.
+11. Resend the request.
+    - Observe **X-Cache changes to hit**, confirming a **static directory cache rule based on `/resources`**.
+
+## 4. Crafting the Exploit
+
+1. In **Repeater**, go to the `/aaa/..%2fmy-account` request.
+2. Construct an exploit by modifying the path:
+   ```
+   /resources/..%2fmy-account
+   ```
+3. Send the request.
+   - Observe that it receives a **200 response with your API key** and **X-Cache: miss**.
+4. Resend the request.
+   - Observe **X-Cache updates to hit**.
+5. In **Burp's browser**, click **Go to exploit server**.
+6. In the **Body** section, craft an exploit to redirect the victim (`carlos`) to the **malicious cached URL**:
+   ```html
+   <script>document.location="https://YOUR-LAB-ID.web-security-academy.net/resources/..%2fmy-account?wcd"</script>
+   ```
+7. Click **Deliver exploit to victim**.
+8. When the victim accesses the link, their **API key response is cached**.
+
+## 5. Extracting the API Key and Submitting the Solution
+
+1. Visit the **cached exploit URL**:
+   ```
+   https://YOUR-LAB-ID.web-security-academy.net/resources/..%2fmy-account?wcd
+   ```
+2. Observe that the response contains **carlos’ API key**.
+3. Copy the API key.
+4. Click **Submit solution** and paste **carlos' API key** to complete the challenge.
+```
+API Key is: dFIYEjZiLBBp6GQYmNkvpqwFcxbcPq3F
+```
