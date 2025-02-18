@@ -89,3 +89,82 @@ This completes the lab.
 This completes the lab.
 
 ---
+## Write-up: Bypassing Front-End Restrictions Using `X-Original-URL` Header  
+
+### Step 1: Identifying the Front-End Block  
+1. Navigate to `/admin` and observe that access is denied.  
+2. Notice that the response is **plain**, suggesting the block occurs at a front-end system rather than the back-end.  
+
+### Step 2: Testing for Backend URL Handling  
+1. Send the `/admin` request to **Burp Repeater**.  
+2. Modify the **request line** to `/` and add the following header:  
+   ```
+   X-Original-URL: /invalid
+   ```  
+3. Observe that the response now returns **"not found"**, indicating the backend is processing this header instead of the original request URL.  
+
+### Step 3: Gaining Admin Access  
+1. Change the value of `X-Original-URL` to:  
+   ```
+   X-Original-URL: /admin
+   ```  
+2. Resend the request and confirm that you can now access the **admin panel**.  
+
+### Step 4: Deleting Carlos  
+1. Modify the request as follows:  
+   - Add `?username=carlos` to the real query string.  
+   - Change `X-Original-URL` to:  
+     ```
+     X-Original-URL: /admin/delete
+     ```  
+2. Resend the request to delete **carlos**.  
+
+This completes the lab.  
+
+---
+
+## Understanding the `X-Original-URL` Header  
+
+The `X-Original-URL` header is used by **reverse proxies** (such as **NGINX, Apache, and certain load balancers**) to preserve the original request path before rewriting it. Some back-end applications trust this header to determine the actual URL being requested, which can lead to bypassing front-end access controls.  
+
+### Similar Headers That Can Bypass Controls  
+
+1. **`X-Rewrite-URL`**  
+   - Used in **IIS (Internet Information Services)** for URL rewriting.  
+   - If a front-end system blocks access but the backend trusts this header, modifying it may bypass restrictions.  
+   - Example:  
+     ```
+     X-Rewrite-URL: /admin
+     ```
+
+2. **`X-Forwarded-For`**  
+   - Commonly used for **IP spoofing** when access is restricted based on IP.  
+   - Some systems trust this header to determine the real client IP.  
+   - Example:  
+     ```
+     X-Forwarded-For: 127.0.0.1
+     ```
+
+3. **`X-Forwarded-Host`**  
+   - Can be used to manipulate **host-based access controls**.  
+   - Some applications use this header to determine routing or security decisions.  
+   - Example:  
+     ```
+     X-Forwarded-Host: admin.target.com
+     ```
+
+4. **`X-Forwarded-Proto`**  
+   - Indicates whether the request was originally **HTTP or HTTPS**.  
+   - If an application enforces HTTPS but trusts this header, setting it to `https` may bypass restrictions.  
+   - Example:  
+     ```
+     X-Forwarded-Proto: https
+     ```
+
+5. **`X-Original-Host`**  
+   - Similar to `X-Forwarded-Host`, but some proxies use this header to determine the original host.  
+   - Example:  
+     ```
+     X-Original-Host: admin.target.com
+     ```
+
