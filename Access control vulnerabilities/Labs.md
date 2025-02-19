@@ -89,6 +89,7 @@ This completes the lab.
 This completes the lab.
 
 ---
+# Lab:5 URL-based access control can be circumvented
 ## Write-up: Bypassing Front-End Restrictions Using `X-Original-URL` Header  
 
 ### Step 1: Identifying the Front-End Block  
@@ -167,4 +168,31 @@ The `X-Original-URL` header is used by **reverse proxies** (such as **NGINX, Apa
      ```
      X-Original-Host: admin.target.com
      ```
+---
+# Lab:6 Method-based access control can be circumvented
+## Write-up: HTTP Method Manipulation for Privilege Escalation  
+
+### Step 1: Logging in as an Admin  
+1. Use the provided **admin credentials** to log in.  
+2. Navigate to the **admin panel** and promote **carlos**.  
+3. Capture the **promotion request** in **Burp Suite** and send it to **Burp Repeater**.  
+
+### Step 2: Testing Unauthorized Access  
+1. Open a **private/incognito window** and log in as a **non-admin user**.  
+2. Copy the **non-admin session cookie** into the **Burp Repeater request**.  
+3. Resend the request and observe the **"Unauthorized"** response.  
+
+### Step 3: Manipulating the HTTP Method  
+1. Change the **HTTP method** from `POST` to `POSTX`.  
+2. Resend the request and observe the **"missing parameter"** error.  
+   - This suggests the server is handling unknown methods differently.  
+
+### Step 4: Bypassing Controls with GET Method  
+1. Right-click in **Burp Repeater** and select **"Change request method"** to convert it to `GET`.  
+2. Modify the `username` parameter to your **own username** instead of `carlos`.  
+3. Resend the request and check if the privilege escalation succeeds.  
+
+This completes the lab.  
+
+---
 
