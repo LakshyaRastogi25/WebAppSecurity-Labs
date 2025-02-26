@@ -40,8 +40,11 @@
    ```html
    <script>document.location="https://YOUR-LAB-ID.web-security-academy.net/my-account/wcd.js"</script>
    ```
+![Screenshot (133)](https://github.com/user-attachments/assets/1aa5844c-268f-45e0-ba61-80833626cf76)
+
 3. Click **Deliver exploit to victim**.
 4. When the victim (`carlos`) accesses the exploit, their response (including their **API key**) is **cached**.
+![Screenshot (134)](https://github.com/user-attachments/assets/e2fd425f-9e3a-4778-be73-83c0222a2766)
 
 ---
 
@@ -58,6 +61,8 @@
 ```
 ydYS2hO3IhusK9NEChqkMbqPlBUQSH
 ```
+![Screenshot (132)](https://github.com/user-attachments/assets/4374f00c-a8f1-4cf9-b969-de8c2a1dd480)
+
 
 # Lab2: Exploiting path delimiters for web cache deception
 
@@ -111,7 +116,11 @@ ydYS2hO3IhusK9NEChqkMbqPlBUQSH
    ```
    GET /my-account;abc.js HTTP/1.1
    ```
+   ![Screenshot from 2025-02-09 09-49-11](https://github.com/user-attachments/assets/66685527-b07f-4f74-88a4-f460e758cbff)
+
 5. Send the request. Observe that the response includes the X-Cache: miss header.
+![Screenshot from 2025-02-09 09-50-24](https://github.com/user-attachments/assets/54d717f6-868a-494b-ac2e-05311db4449b)
+
 6. Resend the request within the cache duration.
 7. The X-Cache header changes to `hit`, confirming that:
    - The cache does not use `;` as a delimiter.
@@ -124,6 +133,8 @@ ydYS2hO3IhusK9NEChqkMbqPlBUQSH
    ```html
    <script>document.location="https://YOUR-LAB-ID.web-security-academy.net/my-account;wcd.js"</script>
    ```
+   ![Screenshot from 2025-02-09 09-49-22](https://github.com/user-attachments/assets/9c736b23-c603-4b11-a691-3e50cb760e0a)
+
 3. Click Deliver exploit to victim.
 4. When the victim views the exploit, their API key response is cached.
 
@@ -134,12 +145,16 @@ ydYS2hO3IhusK9NEChqkMbqPlBUQSH
    https://YOUR-LAB-ID.web-security-academy.net/my-account;wcd.js
    ```
 2. Observe that the response contains carlos’ API key.
+![Screenshot from 2025-02-09 09-48-36](https://github.com/user-attachments/assets/2132b995-cbaa-415a-808f-823c53148d67)
 3. Copy the API key.
 4. Click Submit solution and paste carlos' API key to complete the challenge.
 5. API key for my lab was :
 ```
 CKA6jfg6ybxTwPDnUJCpqGId5Ql7XB2f
 ```
+![Screenshot from 2025-02-09 09-48-59](https://github.com/user-attachments/assets/5e6c9f45-a896-4286-8d51-da887921d647)
+
+
 
 # Lab: Exploiting origin server normalization for web cache deception
 
@@ -195,6 +210,8 @@ CKA6jfg6ybxTwPDnUJCpqGId5Ql7XB2f
    ```
    /resources/aaa
    ```
+   ![Screenshot from 2025-02-10 21-10-15](https://github.com/user-attachments/assets/39dbc3e4-2aac-4806-8e78-bc3117e390ab)
+
 10. Send the request.
     - Observe the **404 response with X-Cache: miss**.
 11. Resend the request.
@@ -207,8 +224,12 @@ CKA6jfg6ybxTwPDnUJCpqGId5Ql7XB2f
    ```
    /resources/..%2fmy-account
    ```
+   ![Screenshot from 2025-02-10 21-10-02](https://github.com/user-attachments/assets/4f2960bb-f3b3-495f-a1f7-69497e4ac245)
+
 3. Send the request.
    - Observe that it receives a **200 response with your API key** and **X-Cache: miss**.
+![Screenshot from 2025-02-10 21-10-10](https://github.com/user-attachments/assets/70de79d1-2631-4941-964d-799ab3a559f2)
+
 4. Resend the request.
    - Observe **X-Cache updates to hit**.
 5. In **Burp's browser**, click **Go to exploit server**.
@@ -231,3 +252,4 @@ CKA6jfg6ybxTwPDnUJCpqGId5Ql7XB2f
 ```
 API Key is: dFIYEjZiLBBp6GQYmNkvpqwFcxbcPq3F
 ```
+![Screenshot from 2025-02-10 21-09-58](https://github.com/user-attachments/assets/de2eae55-05a5-442b-aaa3-dd873b33594a)
