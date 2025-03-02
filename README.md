@@ -6,10 +6,10 @@ Welcome to the **Web Application Security Labs** repository! This project is a c
 This repository draws on insights from **The Web Application Hacker's Handbook** and **OWASP Web Security Testing Guide (WSTG)**, two essential resources for mastering web application security.
 
 ## Lab Structure and Approach
-The labs in this repository are based on hands-on exercises from **PortSwigger**. The labs are divided into **server-side vulnerabilities** and **client-side vulnerabilities**. Starting with server-side vulnerabilities, I am focusing on beginner-friendly, foundational topics to build a strong base before moving into more complex, client-side vulnerabilities.
+The labs in this repository are based on hands-on exercises from **PortSwigger**. The project includes both **server-side vulnerabilities** and **client-side vulnerabilities**. I would prefer starting with server-side vulnerabilities, being it beginner-friendly, foundational topics to build a strong base before moving into more complex, **client-side vulnerabilities**.
 
 ## Contents
-- SQL Injection
+- NoSQL Injection
 - Authentication Vulnerabilities
 - Path Traversal
 - Command Injection
@@ -19,6 +19,7 @@ The labs in this repository are based on hands-on exercises from **PortSwigger**
 - File Upload vulnerabilities
 - Cross-Site Scripting (XSS)
 - Cross-Site Request Forgery (CSRF)
+- Web Cache Deception
 
 ## Goals
 - To demonstrate a hands-on approach to identifying and exploiting web application vulnerabilities.
