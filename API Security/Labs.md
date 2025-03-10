@@ -24,3 +24,67 @@ In this lab, we explore an API vulnerability that allows unauthorized access to 
 13. The user *Carlos* is deleted, successfully solving the lab.
 
 This vulnerability highlights the risks of improper API endpoint exposure, which can lead to unauthorized data access and administrative actions. Proper authentication and endpoint validation are essential to mitigate such risks.
+
+### **Write-up: Finding and exploiting an unused API endpoint**  
+
+This lab demonstrates how an attacker can manipulate API endpoints to modify product prices due to improper authorization checks and misconfigured request validation.  
+
+---
+
+### **Step 1: Identifying the API Endpoint**
+1. Open **Burp’s browser** and navigate to the lab.  
+2. Click on a product to view its details.  
+3. In **Burp Suite**, go to **Proxy > HTTP history** and locate the API request fetching product information, such as:  
+   ```
+   GET /api/products/1/price
+   ```
+4. Right-click the request and select **Send to Repeater** for further testing.  
+
+---
+
+### **Step 2: Identifying Supported HTTP Methods**
+5. In the **Repeater** tab, change the request **method** from `GET` to `OPTIONS` and send the request.  
+6. The response reveals that the **GET** and **PATCH** methods are allowed, meaning price modifications may be possible.  
+
+---
+
+### **Step 3: Checking for Authorization Requirements**
+7. Change the request method from `GET` to `PATCH` and send the request.  
+8. The response returns an **Unauthorized** message, indicating authentication is required to modify prices.  
+
+---
+
+### **Step 4: Logging in and Reattempting the Request**
+9. In **Burp’s browser**, log in using the provided credentials:  
+   ```
+   Username: wiener  
+   Password: peter  
+   ```
+10. Click on the **Lightweight "l33t" Leather Jacket** product.  
+11. In **Proxy > HTTP history**, locate the `GET /api/products/1/price` request for the jacket and send it to **Repeater**.  
+12. Change the request method from `GET` to `PATCH` and send the request.  
+13. The response returns an error due to a missing `Content-Type` header.  
+
+---
+
+### **Step 5: Bypassing Input Validation**
+14. Add the following **Content-Type** header:  
+   ```
+   Content-Type: application/json
+   ```
+15. Add an **empty JSON body** `{}` and send the request.  
+16. The response returns an error indicating that a required parameter (`price`) is missing.  
+17. Modify the JSON body to include the price parameter:  
+   ```json
+   {"price": 0}
+   ```
+18. Send the request. If successful, the product price is now **$0.00**.  
+
+---
+
+### **Step 6: Exploiting the Price Manipulation**
+19. In **Burp’s browser**, reload the **Leather Jacket** product page and confirm that the price has changed to **$0.00**.  
+20. Add the leather jacket to your basket.  
+21. Proceed to checkout and click **Place order** to solve the lab.  
+
+---
