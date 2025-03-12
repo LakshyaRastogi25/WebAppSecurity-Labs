@@ -188,3 +188,108 @@ This lab demonstrates how an attacker can manipulate API requests to apply unaut
 
 ---
 
+# **Write-Up: Exploiting server-side parameter pollution in a query string**  
+
+## **Overview**  
+In this lab, we exploited **server-side parameter pollution (SSPP)** to extract the **reset token** for the administrator user. By manipulating URL-encoded parameters, we were able to access the **password reset endpoint** and take over the administrator account.  
+
+---
+
+## **Step 1: Triggering a Password Reset**  
+1. Open **Burp’s browser** and initiate a **password reset** for the administrator account.  
+2. In **Burp Suite**, navigate to **Proxy > HTTP history** and locate the `POST /forgot-password` request.  
+3. Identify the associated JavaScript file **`/static/js/forgotPassword.js`**, which may reveal how the reset function operates.  
+
+---
+
+## **Step 2: Sending the Request to Repeater**  
+1. **Right-click** on the `POST /forgot-password` request and select **Send to Repeater**.  
+2. In **Repeater**, resend the request to confirm the response remains consistent.  
+
+---
+
+## **Step 3: Testing for Invalid Usernames**  
+1. Modify the **username** parameter from `administrator` to `administratorx`.  
+2. Send the request and observe the **Invalid username** error message.  
+   - This confirms that invalid usernames are properly rejected.  
+
+---
+
+## **Step 4: Injecting Additional Parameters**  
+1. Attempt to inject a second parameter using a URL-encoded `&`:  
+   ```
+   username=administrator%26x=y
+   ```
+2. Send the request. Observe that the response returns **Parameter is not supported**.  
+   - This suggests that the internal API interprets `&x=y` as a **separate parameter**.  
+
+---
+
+## **Step 5: Truncating Query String with `#`**  
+1. Modify the **username** parameter using a URL-encoded `#` to truncate backend queries:  
+   ```
+   username=administrator%23
+   ```
+2. Send the request. Observe the **Field not specified** error message.  
+   - This suggests that a required parameter (possibly `field`) was removed by the `#` character.  
+
+---
+
+## **Step 6: Injecting a Field Parameter**  
+1. Modify the **username** parameter to add a new field:  
+   ```
+   username=administrator%26field=x%23
+   ```
+2. Send the request. Observe the **Invalid field** error message.  
+   - This suggests that the **`field` parameter is recognized** by the backend.  
+
+---
+
+## **Step 7: Brute-Forcing the Field Parameter**  
+1. **Right-click** the `POST /forgot-password` request and select **Send to Intruder**.  
+2. In **Intruder**, set the **payload position** inside the `field` parameter:  
+   ```
+   username=administrator%26field=§x§%23
+   ```
+3. Use the **built-in Server-side variable names** payload list and start the attack.  
+4. Review the results and observe that `email` and `username` return **200 OK responses**.  
+
+---
+
+## **Step 8: Extracting the Reset Token**  
+1. Modify the **field parameter** to use `email`:  
+   ```
+   username=administrator%26field=email%23
+   ```
+2. Send the request and verify that the response structure remains unchanged.  
+3. Review the **`/static/js/forgotPassword.js`** file in **Proxy > HTTP history**.  
+   - The script contains a reference to:  
+     ```
+     /forgot-password?reset_token=${resetToken}
+     ```
+   - This confirms that **reset_token** is a valid field type.  
+
+4. Modify the request to replace `email` with `reset_token`:  
+   ```
+   username=administrator%26field=reset_token%23
+   ```
+5. Send the request. **Observe the response containing the password reset token**.  
+
+---
+
+## **Step 9: Resetting the Administrator Password**  
+1. Copy the extracted **reset token**.  
+2. In **Burp’s browser**, navigate to the **password reset endpoint**:  
+   ```
+   /forgot-password?reset_token=123456789
+   ```
+3. Set a **new password** for the administrator account.  
+4. Log in as `administrator` using the newly set password.  
+
+---
+
+## **Step 10: Deleting Carlos (Lab Completion)**  
+1. Navigate to the **Admin Panel**.  
+2. Delete the user **Carlos** to complete the lab.  
+
+---
